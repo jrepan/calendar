@@ -7,6 +7,10 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+html, body {
+    height: 100%;
+}
+
 code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
         monospace;
@@ -43,3 +47,167 @@ code {
 .small {
     font-size: 0.75rem;
 }
+
+/* Calendar widget */
+.calendar-section {
+    display: flex;
+    align-items: stretch;
+    padding: 0;
+    background: #f5f7fb;
+    color: #222;
+    width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+}
+.calendar-container {
+    width: 100%;
+    max-width: none;
+    background: #ffffff;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.calendar-header button {
+    background: #efefef;
+    border: 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.calendar-header h2 {
+    margin: 0;
+    font-size: 1.125rem;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    flex: 1 1 auto;
+    overflow: auto;
+    padding: 8px 4px 12px 4px;
+}
+.calendar-weekday {
+    text-align: center;
+    font-weight: 700;
+    padding: 8px 0;
+    background: #fafafa;
+    border-radius: 4px;
+}
+.calendar-day {
+    min-height: 80px;
+    padding: 8px;
+    border-radius: 6px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    position: relative;
+}
+.calendar-day.inactive {
+    background: #fafafa;
+    color: #999;
+}
+.day-number {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+.events {
+    margin-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.event {
+    background: #e6f0ff;
+    color: #0b4da0;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.event {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.delete-btn {
+    background: transparent;
+    border: none;
+    color: #a00;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 6px;
+    font-size: 1rem;
+    line-height: 1;
+}
+.delete-btn:hover { color: #c33; }
+
+.event-actions {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+}
+.edit-btn {
+    background: transparent;
+    border: none;
+    color: #045;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+.edit-form {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.add-form {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+.add-form .add-date,
+.add-form .add-title {
+    font-size: 0.85rem;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+.add-btn, .cancel-add-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 0;
+    cursor: pointer;
+}
+.add-btn { background: #0b63d4; color: #fff; }
+.cancel-add-btn { background: #eee; }
+.edit-form .edit-date,
+.edit-form .edit-title {
+    font-size: 0.85rem;
+    padding: 4px 6px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+.save-btn, .cancel-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 0;
+    cursor: pointer;
+}
+.save-btn { background: #0b63d4; color: #fff; }
+.cancel-btn { background: #eee; }
+
+.calendar-day:hover { box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+
