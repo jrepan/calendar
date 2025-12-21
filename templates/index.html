@@ -6,9 +6,14 @@
     <section class="calendar-section">
         <div class="calendar-container">
             <div class="calendar-header">
-                <button id="prevMonth" aria-label="Previous month">&lt;</button>
+                <div>
+                    <button id="prevMonth" aria-label="Previous month">&lt;</button>
+                    <button id="nextMonth" aria-label="Next month">&gt;</button>
+                </div>
                 <h2 id="monthYear">Month Year</h2>
-                <button id="nextMonth" aria-label="Next month">&gt;</button>
+                <div>
+                    <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
+                </div>
             </div>
             <div id="calendar" class="calendar-grid" aria-live="polite"></div>
         </div>

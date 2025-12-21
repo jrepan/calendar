@@ -76,6 +76,7 @@ code {
     justify-content: space-between;
     margin-bottom: 8px;
 }
+.logout-link { color: #e33; text-decoration: none; padding: 6px 8px; background: #fff0f0; border-radius: 6px }
 .calendar-header button {
     background: #efefef;
     border: 0;
