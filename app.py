@@ -4,23 +4,22 @@ from flask import Flask, render_template, request, jsonify, make_response, sessi
 
 app = Flask(__name__, static_folder=None)
 
-# Secret key for session. Override with SECRET_KEY env var in production.
-# If not provided, generate a random ephemeral key on startup.
+# Secret key for session.
 app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24).hex()
 
 # Password handling: always use SHA1. Provide the SHA1 hex via
 # `AUTH_PASSWORD_SHA1`. If not set, default to SHA1('password').
 AUTH_PASSWORD_HASH = os.environ.get('AUTH_PASSWORD_SHA1')
 if not AUTH_PASSWORD_HASH:
-    AUTH_PASSWORD_HASH = hashlib.sha1('password'.encode('utf-8')).hexdigest()
+    AUTH_PASSWORD_HASH = hashlib.sha1('saladus'.encode('utf-8')).hexdigest()
 
-# Sample events stored server-side. Date format: YYYY-MM-DD
-sample_events = []
+# Events stored server-side. Date format: YYYY-MM-DD
+events = []
 
 
 @app.route("/")
-def hello_world():
-    return render_template("index.html", events=sample_events)
+def main():
+    return render_template("index.html", events=events)
 
 
 @app.before_request
@@ -35,7 +34,7 @@ def require_login():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    next_url = request.args.get('next') or url_for('hello_world')
+    next_url = request.args.get('next') or url_for('main')
     error = None
     if request.method == 'POST':
         password = request.form.get('password', '')
@@ -69,8 +68,8 @@ def add_event():
         return jsonify({'error': 'invalid payload'}), 400
 
     ev = {'date': data['date'], 'title': data['title']}
-    sample_events.append(ev)
-    return jsonify(sample_events)
+    events.append(ev)
+    return jsonify(events)
 
 
 @app.route('/delete-event', methods=['POST'])
@@ -82,10 +81,10 @@ def delete_event():
     if not data or 'date' not in data or 'title' not in data:
         return jsonify({'error': 'invalid payload'}), 400
 
-    for i, ev in enumerate(sample_events):
+    for i, ev in enumerate(events):
         if ev.get('date') == data['date'] and ev.get('title') == data['title']:
-            sample_events.pop(i)
-            return jsonify(sample_events)
+            events.pop(i)
+            return jsonify(events)
 
     return jsonify({'error': 'not found'}), 404
 
@@ -102,11 +101,11 @@ def edit_event():
 
     old_date = data['old_date']
     old_title = data['old_title']
-    for ev in sample_events:
+    for ev in events:
         if ev.get('date') == old_date and ev.get('title') == old_title:
             ev['date'] = data['date']
             ev['title'] = data['title']
-            return jsonify(sample_events)
+            return jsonify(events)
 
     return jsonify({'error': 'not found'}), 404
 
@@ -114,6 +113,6 @@ def edit_event():
 @app.route('/download-events', methods=['GET'])
 def download_events():
     """Download all events in JSON."""
-    resp = make_response(jsonify(sample_events))
+    resp = make_response(jsonify(events))
     resp.headers['Content-Disposition'] = 'attachment; filename=events.json'
     return resp
