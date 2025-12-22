@@ -8,6 +8,22 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentYear = today.getFullYear();
   let currentMonth = today.getMonth();
 
+  // Use user's locale to generate localized month and weekday names.
+  const locale = (navigator && navigator.language) ? navigator.language : 'en-US';
+  const monthNames = Array.from({ length: 12 }, (_, m) =>
+    new Intl.DateTimeFormat(locale, { month: 'long' }).format(new Date(2020, m, 1))
+  );
+  const weekdayNames = (() => {
+    // Jan 4, 2021 is a Monday — use as a stable Monday base to build Mon..Sun
+    const baseTimestamp = Date.UTC(2021, 0, 4);
+    const fmt = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+    const arr = [];
+    for (let i = 0; i < 7; i++) {
+      arr.push(fmt.format(new Date(baseTimestamp + i * 24 * 60 * 60 * 1000)));
+    }
+    return arr;
+  })();
+
   function pad(n) { return String(n).padStart(2, '0'); }
   function ymd(year, monthZeroBased, day) {
     return `${year}-${pad(monthZeroBased+1)}-${pad(day)}`;
@@ -22,9 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderCalendar(year, month) {
     calendarEl.innerHTML = '';
 
-    const monthNames = [
-      'January','February','March','April','May','June','July','August','September','October','November','December'
-    ];
     monthYearEl.textContent = `${monthNames[month]} ${year}`;
 
     const first = new Date(year, month, 1);
@@ -32,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const startDay = (first.getDay() + 6) % 7;
     const daysInMonth = new Date(year, month+1, 0).getDate();
 
-    const weekdayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     weekdayNames.forEach(w => {
       const el = document.createElement('div');
       el.className = 'calendar-weekday';
