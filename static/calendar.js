@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Helper to create a day cell (prev/current/next months). Returns the cell element.
   function createDayCell(year, month, day, { isOtherMonth = false, allowActions = false } = {}) {
     const cell = document.createElement('div');
-    cell.className = 'calendar-day' + (isOtherMonth ? ' inactive other-month' : '');
+    cell.className = 'calendar-day' + (isOtherMonth ? ' other-month' : '');
     const dateKey = ymd(year, month, day);
     cell.setAttribute('data-date', dateKey);
 

@@ -78,7 +78,7 @@ code {
     justify-content: space-between;
     margin-bottom: 8px;
 }
-.logout-link { color: #fda4af; text-decoration: none; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 6px }
+.logout-link { color: #ffffff; text-decoration: none; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 6px }
 .calendar-header button {
     background: #0f2a4a;
     border: 1px solid rgba(255,255,255,0.04);
@@ -104,7 +104,7 @@ code {
     text-align: center;
     font-weight: 700;
     padding: 8px 0;
-    background: rgba(255,255,255,0.03);
+    background: rgb(5, 6, 26);
     border-radius: 4px;
     color: #cfe6ff;
 }
@@ -112,23 +112,27 @@ code {
     min-height: 80px;
     padding: 8px;
     border-radius: 6px;
-    background: #0f1724;
+    background: black;
     border: 1px solid rgba(255,255,255,0.03);
     position: relative;
 }
-.calendar-day.inactive {
-    background: rgba(255,255,255,0.02);
-    color: #94a3b8;
-}
-/* Other-month days: slightly distinct for dark theme */
 .calendar-day.other-month {
-    background: rgba(255,255,255,0.01);
+    background: rgb(8, 7, 22);
     color: #6b7280;
 }
 .calendar-day.other-month .event {
     opacity: 0.9;
     background: rgba(99,102,241,0.06);
     color: #c7d2fe;
+}
+.calendar-day:hover { box-shadow: 0 6px 18px rgba(3,7,18,0.6); }
+.calendar-day.today {
+    border: 2px solid #f59e0b;
+    box-shadow: 0 8px 22px rgba(245,158,11,0.06);
+}
+.calendar-day.today .day-number {
+    color: #ffd8a8;
+    font-weight: 800;
 }
 .day-number {
     position: absolute;
@@ -145,7 +149,7 @@ code {
     gap: 4px;
 }
 .event {
-    background: linear-gradient(180deg, rgba(29,78,216,0.12), rgba(29,78,216,0.06));
+    background: rgb(13, 43, 124);
     color: #bfdbfe;
     padding: 4px 6px;
     border-radius: 4px;
@@ -228,19 +232,6 @@ code {
 }
 .save-btn { background: #1e40af; color: #fff; }
 .cancel-btn { background: rgba(255,255,255,0.03); color: #cfe6ff; }
-
-.calendar-day:hover { box-shadow: 0 6px 18px rgba(3,7,18,0.6); }
-
-/* Highlight for today's date */
-.calendar-day.today {
-    border: 2px solid #f59e0b;
-    background: linear-gradient(180deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02));
-    box-shadow: 0 8px 22px rgba(245,158,11,0.06);
-}
-.calendar-day.today .day-number {
-    color: #ffd8a8;
-    font-weight: 800;
-}
 
 /* Login page styles (moved from templates/login.html) */
 .login-box {
