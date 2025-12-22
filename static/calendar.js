@@ -52,11 +52,40 @@ document.addEventListener('DOMContentLoaded', () => {
       calendarEl.appendChild(el);
     });
 
-    // Leading blanks
-    for (let i = 0; i < startDay; i++) {
-      const blank = document.createElement('div');
-      blank.className = 'calendar-day inactive';
-      calendarEl.appendChild(blank);
+    // Leading days from previous month (show full first week)
+    const prevMonthDate = new Date(year, month, 0); // last day of previous month
+    const daysInPrevMonth = prevMonthDate.getDate();
+    const prevMonthIndex = (month + 11) % 12;
+    const prevYear = (month === 0) ? year - 1 : year;
+    for (let i = startDay; i > 0; i--) {
+      const day = daysInPrevMonth - i + 1;
+      const cell = document.createElement('div');
+      cell.className = 'calendar-day inactive other-month';
+      const dateKey = ymd(prevYear, prevMonthIndex, day);
+      cell.setAttribute('data-date', dateKey);
+
+      const num = document.createElement('div');
+      num.className = 'day-number';
+      num.textContent = day;
+      cell.appendChild(num);
+
+      const evWrap = document.createElement('div');
+      evWrap.className = 'events';
+      const evs = eventsFor(dateKey);
+      evs.slice(0,3).forEach(ev => {
+        const evEl = document.createElement('div');
+        evEl.className = 'event';
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'event-title';
+        titleSpan.textContent = ev.title;
+        evEl.appendChild(titleSpan);
+        evWrap.appendChild(evEl);
+      });
+      cell.appendChild(evWrap);
+      if (evs.length > 0) {
+        cell.setAttribute('aria-label', `${day} ${monthNames[prevMonthIndex]} ${prevYear}: ${evs.map(e=>e.title).join(', ')}`);
+      }
+      calendarEl.appendChild(cell);
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
@@ -185,6 +214,41 @@ document.addEventListener('DOMContentLoaded', () => {
         cell.setAttribute('aria-label', `${d} ${monthNames[month]} ${year}: ${evs.map(e=>e.title).join(', ')}`);
       }
 
+      calendarEl.appendChild(cell);
+    }
+
+    // Trailing days from next month to complete last week
+    const used = startDay + daysInMonth;
+    const trailing = (7 - (used % 7)) % 7;
+    const nextMonthIndex = (month + 1) % 12;
+    const nextYear = (month === 11) ? year + 1 : year;
+    for (let i = 1; i <= trailing; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'calendar-day inactive other-month';
+      const dateKey = ymd(nextYear, nextMonthIndex, i);
+      cell.setAttribute('data-date', dateKey);
+
+      const num = document.createElement('div');
+      num.className = 'day-number';
+      num.textContent = i;
+      cell.appendChild(num);
+
+      const evWrap = document.createElement('div');
+      evWrap.className = 'events';
+      const evs = eventsFor(dateKey);
+      evs.slice(0,3).forEach(ev => {
+        const evEl = document.createElement('div');
+        evEl.className = 'event';
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'event-title';
+        titleSpan.textContent = ev.title;
+        evEl.appendChild(titleSpan);
+        evWrap.appendChild(evEl);
+      });
+      cell.appendChild(evWrap);
+      if (evs.length > 0) {
+        cell.setAttribute('aria-label', `${i} ${monthNames[nextMonthIndex]} ${nextYear}: ${evs.map(e=>e.title).join(', ')}`);
+      }
       calendarEl.appendChild(cell);
     }
   }

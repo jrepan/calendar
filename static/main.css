@@ -116,6 +116,16 @@ code {
     background: #fafafa;
     color: #999;
 }
+/* Other-month days: slightly darker to distinguish previous/next month */
+.calendar-day.other-month {
+    background: #f0f4fb;
+    color: #666;
+}
+.calendar-day.other-month .event {
+    opacity: 0.85;
+    background: #eef4ff;
+    color: #274a7a;
+}
 .day-number {
     position: absolute;
     top: 6px;
