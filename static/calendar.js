@@ -35,82 +35,32 @@ document.addEventListener('DOMContentLoaded', () => {
     return all.filter(e => e.date === dateKey);
   }
 
-  function renderCalendar(year, month) {
-    calendarEl.innerHTML = '';
+  // Helper to create a day cell (prev/current/next months). Returns the cell element.
+  function createDayCell(year, month, day, { isOtherMonth = false, allowActions = false } = {}) {
+    const cell = document.createElement('div');
+    cell.className = 'calendar-day' + (isOtherMonth ? ' inactive other-month' : '');
+    const dateKey = ymd(year, month, day);
+    cell.setAttribute('data-date', dateKey);
 
-    monthYearEl.textContent = `${monthNames[month]} ${year}`;
+    const num = document.createElement('div');
+    num.className = 'day-number';
+    num.textContent = day;
+    cell.appendChild(num);
 
-    const first = new Date(year, month, 1);
-    // Shift so Monday is the first column: JS.getDay() -> 0=Sun..6=Sat
-    const startDay = (first.getDay() + 6) % 7;
-    const daysInMonth = new Date(year, month+1, 0).getDate();
+    const evWrap = document.createElement('div');
+    evWrap.className = 'events';
+    const evs = eventsFor(dateKey);
 
-    weekdayNames.forEach(w => {
-      const el = document.createElement('div');
-      el.className = 'calendar-weekday';
-      el.textContent = w;
-      calendarEl.appendChild(el);
-    });
+    evs.slice(0,3).forEach(ev => {
+      const evEl = document.createElement('div');
+      evEl.className = 'event';
 
-    // Leading days from previous month (show full first week)
-    const prevMonthDate = new Date(year, month, 0); // last day of previous month
-    const daysInPrevMonth = prevMonthDate.getDate();
-    const prevMonthIndex = (month + 11) % 12;
-    const prevYear = (month === 0) ? year - 1 : year;
-    for (let i = startDay; i > 0; i--) {
-      const day = daysInPrevMonth - i + 1;
-      const cell = document.createElement('div');
-      cell.className = 'calendar-day inactive other-month';
-      const dateKey = ymd(prevYear, prevMonthIndex, day);
-      cell.setAttribute('data-date', dateKey);
+      const titleSpan = document.createElement('span');
+      titleSpan.className = 'event-title';
+      titleSpan.textContent = ev.title;
+      evEl.appendChild(titleSpan);
 
-      const num = document.createElement('div');
-      num.className = 'day-number';
-      num.textContent = day;
-      cell.appendChild(num);
-
-      const evWrap = document.createElement('div');
-      evWrap.className = 'events';
-      const evs = eventsFor(dateKey);
-      evs.slice(0,3).forEach(ev => {
-        const evEl = document.createElement('div');
-        evEl.className = 'event';
-        const titleSpan = document.createElement('span');
-        titleSpan.className = 'event-title';
-        titleSpan.textContent = ev.title;
-        evEl.appendChild(titleSpan);
-        evWrap.appendChild(evEl);
-      });
-      cell.appendChild(evWrap);
-      if (evs.length > 0) {
-        cell.setAttribute('aria-label', `${day} ${monthNames[prevMonthIndex]} ${prevYear}: ${evs.map(e=>e.title).join(', ')}`);
-      }
-      calendarEl.appendChild(cell);
-    }
-
-    for (let d = 1; d <= daysInMonth; d++) {
-      const cell = document.createElement('div');
-      cell.className = 'calendar-day';
-      const dateKey = ymd(year, month, d);
-      cell.setAttribute('data-date', dateKey);
-
-      const num = document.createElement('div');
-      num.className = 'day-number';
-      num.textContent = d;
-      cell.appendChild(num);
-
-      const evWrap = document.createElement('div');
-      evWrap.className = 'events';
-      const evs = eventsFor(dateKey);
-      evs.slice(0,3).forEach(ev => {
-        const evEl = document.createElement('div');
-        evEl.className = 'event';
-
-        const titleSpan = document.createElement('span');
-        titleSpan.className = 'event-title';
-        titleSpan.textContent = ev.title;
-        evEl.appendChild(titleSpan);
-
+      if (allowActions) {
         const actions = document.createElement('span');
         actions.className = 'event-actions';
 
@@ -205,15 +155,50 @@ document.addEventListener('DOMContentLoaded', () => {
         actions.appendChild(editBtn);
         actions.appendChild(delBtn);
         evEl.appendChild(actions);
-        evWrap.appendChild(evEl);
-      });
-      cell.appendChild(evWrap);
-
-      // accessibility
-      if (evs.length > 0) {
-        cell.setAttribute('aria-label', `${d} ${monthNames[month]} ${year}: ${evs.map(e=>e.title).join(', ')}`);
       }
 
+      evWrap.appendChild(evEl);
+    });
+
+    cell.appendChild(evWrap);
+
+    if (evs.length > 0) {
+      cell.setAttribute('aria-label', `${day} ${monthNames[month]} ${year}: ${evs.map(e=>e.title).join(', ')}`);
+    }
+
+    return cell;
+  }
+
+  function renderCalendar(year, month) {
+    calendarEl.innerHTML = '';
+
+    monthYearEl.textContent = `${monthNames[month]} ${year}`;
+
+    const first = new Date(year, month, 1);
+    // Shift so Monday is the first column: JS.getDay() -> 0=Sun..6=Sat
+    const startDay = (first.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+
+    weekdayNames.forEach(w => {
+      const el = document.createElement('div');
+      el.className = 'calendar-weekday';
+      el.textContent = w;
+      calendarEl.appendChild(el);
+    });
+
+    // Leading days from previous month (show full first week)
+    const prevMonthDate = new Date(year, month, 0); // last day of previous month
+    const daysInPrevMonth = prevMonthDate.getDate();
+    const prevMonthIndex = (month + 11) % 12;
+    const prevYear = (month === 0) ? year - 1 : year;
+    for (let i = startDay; i > 0; i--) {
+      const day = daysInPrevMonth - i + 1;
+      const cell = createDayCell(prevYear, prevMonthIndex, day, { isOtherMonth: true, allowActions: false });
+      calendarEl.appendChild(cell);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const cell = createDayCell(year, month, d, { isOtherMonth: false, allowActions: true });
       calendarEl.appendChild(cell);
     }
 
@@ -223,32 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextMonthIndex = (month + 1) % 12;
     const nextYear = (month === 11) ? year + 1 : year;
     for (let i = 1; i <= trailing; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'calendar-day inactive other-month';
-      const dateKey = ymd(nextYear, nextMonthIndex, i);
-      cell.setAttribute('data-date', dateKey);
-
-      const num = document.createElement('div');
-      num.className = 'day-number';
-      num.textContent = i;
-      cell.appendChild(num);
-
-      const evWrap = document.createElement('div');
-      evWrap.className = 'events';
-      const evs = eventsFor(dateKey);
-      evs.slice(0,3).forEach(ev => {
-        const evEl = document.createElement('div');
-        evEl.className = 'event';
-        const titleSpan = document.createElement('span');
-        titleSpan.className = 'event-title';
-        titleSpan.textContent = ev.title;
-        evEl.appendChild(titleSpan);
-        evWrap.appendChild(evEl);
-      });
-      cell.appendChild(evWrap);
-      if (evs.length > 0) {
-        cell.setAttribute('aria-label', `${i} ${monthNames[nextMonthIndex]} ${nextYear}: ${evs.map(e=>e.title).join(', ')}`);
-      }
+      const cell = createDayCell(nextYear, nextMonthIndex, i, { isOtherMonth: true, allowActions: false });
       calendarEl.appendChild(cell);
     }
   }
