@@ -165,6 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (evs.length > 0) {
       cell.setAttribute('aria-label', `${day} ${monthNames[month]} ${year}: ${evs.map(e=>e.title).join(', ')}`);
     }
+    // Highlight today's date
+    const todayKey = ymd(today.getFullYear(), today.getMonth(), today.getDate());
+    if (dateKey === todayKey) {
+      cell.classList.add('today');
+    }
 
     return cell;
   }

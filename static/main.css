@@ -231,6 +231,17 @@ code {
 
 .calendar-day:hover { box-shadow: 0 6px 18px rgba(3,7,18,0.6); }
 
+/* Highlight for today's date */
+.calendar-day.today {
+    border: 2px solid #f59e0b;
+    background: linear-gradient(180deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02));
+    box-shadow: 0 8px 22px rgba(245,158,11,0.06);
+}
+.calendar-day.today .day-number {
+    color: #ffd8a8;
+    font-weight: 800;
+}
+
 /* Login page styles (moved from templates/login.html) */
 .login-box {
     max-width: 360px;
