@@ -5,6 +5,8 @@ body {
         sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background: #071026;
+    color: #e6eef8;
 }
 
 html, body {
@@ -26,22 +28,22 @@ code {
 }
 
 .App-header {
-    background-color: #282c34;
+    background-color: transparent;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     font-size: calc(10px + 2vmin);
-    color: white;
+    color: #e6eef8;
 }
 
 .App-link {
-    color: #61dafb;
+    color: #7dd3fc;
 }
 
 .heart {
-    color: #ff0000;
+    color: #ff7b7b;
 }
 
 .small {
@@ -53,8 +55,8 @@ code {
     display: flex;
     align-items: stretch;
     padding: 0;
-    background: #f5f7fb;
-    color: #222;
+    background: transparent;
+    color: #e6eef8;
     width: 100vw;
     height: 100vh;
     box-sizing: border-box;
@@ -62,9 +64,9 @@ code {
 .calendar-container {
     width: 100%;
     max-width: none;
-    background: #ffffff;
+    background: #071026;
     border-radius: 0;
-    box-shadow: none;
+    box-shadow: 0 8px 30px rgba(2,6,23,0.7);
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -76,10 +78,11 @@ code {
     justify-content: space-between;
     margin-bottom: 8px;
 }
-.logout-link { color: #e33; text-decoration: none; padding: 6px 8px; background: #fff0f0; border-radius: 6px }
+.logout-link { color: #fda4af; text-decoration: none; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 6px }
 .calendar-header button {
-    background: #efefef;
-    border: 0;
+    background: #0f2a4a;
+    border: 1px solid rgba(255,255,255,0.04);
+    color: #dbeafe;
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
@@ -101,30 +104,31 @@ code {
     text-align: center;
     font-weight: 700;
     padding: 8px 0;
-    background: #fafafa;
+    background: rgba(255,255,255,0.03);
     border-radius: 4px;
+    color: #cfe6ff;
 }
 .calendar-day {
     min-height: 80px;
     padding: 8px;
     border-radius: 6px;
-    background: #fff;
-    border: 1px solid #f0f0f0;
+    background: #0f1724;
+    border: 1px solid rgba(255,255,255,0.03);
     position: relative;
 }
 .calendar-day.inactive {
-    background: #fafafa;
-    color: #999;
+    background: rgba(255,255,255,0.02);
+    color: #94a3b8;
 }
-/* Other-month days: slightly darker to distinguish previous/next month */
+/* Other-month days: slightly distinct for dark theme */
 .calendar-day.other-month {
-    background: #f0f4fb;
-    color: #666;
+    background: rgba(255,255,255,0.01);
+    color: #6b7280;
 }
 .calendar-day.other-month .event {
-    opacity: 0.85;
-    background: #eef4ff;
-    color: #274a7a;
+    opacity: 0.9;
+    background: rgba(99,102,241,0.06);
+    color: #c7d2fe;
 }
 .day-number {
     position: absolute;
@@ -132,6 +136,7 @@ code {
     left: 8px;
     font-size: 0.9rem;
     font-weight: 700;
+    color: #dbeafe;
 }
 .events {
     margin-top: 22px;
@@ -140,8 +145,8 @@ code {
     gap: 4px;
 }
 .event {
-    background: #e6f0ff;
-    color: #0b4da0;
+    background: linear-gradient(180deg, rgba(29,78,216,0.12), rgba(29,78,216,0.06));
+    color: #bfdbfe;
     padding: 4px 6px;
     border-radius: 4px;
     font-size: 0.85rem;
@@ -158,14 +163,14 @@ code {
 .delete-btn {
     background: transparent;
     border: none;
-    color: #a00;
+    color: #ffb4b4;
     font-weight: 700;
     cursor: pointer;
     padding: 0 6px;
     font-size: 1rem;
     line-height: 1;
 }
-.delete-btn:hover { color: #c33; }
+.delete-btn:hover { color: #ff8a8a; }
 
 .event-actions {
     display: inline-flex;
@@ -175,7 +180,7 @@ code {
 .edit-btn {
     background: transparent;
     border: none;
-    color: #045;
+    color: #bcdfff;
     cursor: pointer;
     font-size: 0.95rem;
 }
@@ -194,7 +199,9 @@ code {
     font-size: 0.85rem;
     padding: 4px 6px;
     border-radius: 4px;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.02);
+    color: #e6eef8;
 }
 .add-btn, .cancel-add-btn {
     padding: 4px 8px;
@@ -202,14 +209,16 @@ code {
     border: 0;
     cursor: pointer;
 }
-.add-btn { background: #0b63d4; color: #fff; }
-.cancel-add-btn { background: #eee; }
+.add-btn { background: #1e40af; color: #fff; }
+.cancel-add-btn { background: rgba(255,255,255,0.03); color: #cfe6ff; }
 .edit-form .edit-date,
 .edit-form .edit-title {
     font-size: 0.85rem;
     padding: 4px 6px;
     border-radius: 4px;
-    border: 1px solid #ddd;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.02);
+    color: #e6eef8;
 }
 .save-btn, .cancel-btn {
     padding: 4px 8px;
@@ -217,8 +226,8 @@ code {
     border: 0;
     cursor: pointer;
 }
-.save-btn { background: #0b63d4; color: #fff; }
-.cancel-btn { background: #eee; }
+.save-btn { background: #1e40af; color: #fff; }
+.cancel-btn { background: rgba(255,255,255,0.03); color: #cfe6ff; }
 
-.calendar-day:hover { box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
+.calendar-day:hover { box-shadow: 0 6px 18px rgba(3,7,18,0.6); }
 
