@@ -166,15 +166,16 @@ def upload_events():
     # Validate all VEVENTs first: ensure dtstart and summary present and dates parseable
     vevents = [c for c in cal.walk() if c.name == 'VEVENT']
     for c in vevents:
-        if not c.get('summary') or not c.get('dtstart'):
-            return jsonify({'error': 'missing summary or dtstart in VEVENT', 'vevent': str(c)}), 400
+        # dtstart is required; summary is optional (use default title when absent)
+        if not c.get('dtstart'):
+            return jsonify({'error': 'missing dtstart in VEVENT', 'vevent': str(c)}), 400
         try:
             dtval = c.get('dtstart').dt
             if isinstance(dtval, datetime.datetime):
                 dtval = dtval.date()
             _ = dtval.isoformat()
-        except Exception:
-            return jsonify({'error': 'malformed date in uploaded ics', 'vevent': str(c)}), 400
+        except Exception as exc:
+            return jsonify({'error': 'malformed date in uploaded ics', 'vevent': str(c), 'details': str(exc)}), 400
 
     # All validated — now import
     added = 0
@@ -184,7 +185,7 @@ def upload_events():
         if isinstance(dtval, datetime.datetime):
             dtval = dtval.date()
         date_str = dtval.isoformat()
-        title = str(summary)
+        title = str(summary) if summary is not None else '(no title)'
         exists = any(e.get('date') == date_str and e.get('title') == title for e in events)
         if not exists:
             events.append({'date': date_str, 'title': title, 'uid': str(component.get('uid') or uuid.uuid4().hex)})

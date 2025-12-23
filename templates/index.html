@@ -49,13 +49,21 @@
                 form.append('file', file);
                 try {
                     const res = await fetch('/upload-events', { method: 'POST', body: form });
-                    if (!res.ok) throw new Error('upload failed');
-                    const updated = await res.json();
+                    let body = null;
+                    try { body = await res.json(); } catch (e) { /* ignore JSON parse errors */ }
+                    if (!res.ok) {
+                        // Log detailed server-provided info to the browser console
+                        console.error('Import failed:', { status: res.status, body });
+                        const serverMsg = body && (body.details || body.error) ? (body.details ? `${body.error}: ${body.details}` : body.error) : `Upload failed with status ${res.status}`;
+                        alert(`Import failed: ${serverMsg}`);
+                        return;
+                    }
+                    const updated = body || [];
                     if (window.reloadCalendar) window.reloadCalendar(updated);
                     alert('Import complete');
                 } catch (err) {
-                    console.error('Import failed', err);
-                    alert('Could not import file');
+                    console.error('Import failed (network or unexpected):', err);
+                    alert('Could not import file: ' + (err && err.message ? err.message : String(err)));
                 } finally {
                     importFile.value = '';
                 }
