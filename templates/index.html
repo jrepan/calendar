@@ -11,7 +11,12 @@
                     <button id="nextMonth" aria-label="Next month">&gt;</button>
                 </div>
                 <h2 id="monthYear">Month Year</h2>
-                <div>
+                <div class="header-actions">
+                    <button id="exportIcs" title="Export as .ics">Export</button>
+                    <form id="importForm" style="display:inline-block" enctype="multipart/form-data">
+                        <input id="importFile" name="file" type="file" accept=".ics" style="display:none">
+                        <button id="importBtn" type="button">Import</button>
+                    </form>
                     <a href="{{ url_for('logout') }}" class="logout-link">Logout</a>
                 </div>
             </div>
@@ -21,6 +26,41 @@
     <script>
         // Server-provided events injected as JSON
         window.SERVEREVENTS = {{ events|tojson | safe }} || [];
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const exportBtn = document.getElementById('exportIcs');
+            const importBtn = document.getElementById('importBtn');
+            const importFile = document.getElementById('importFile');
+
+            exportBtn.addEventListener('click', () => {
+                // simple navigation to download
+                window.location = '/download-events';
+            });
+
+            importBtn.addEventListener('click', () => {
+                importFile.click();
+            });
+
+            importFile.addEventListener('change', async (ev) => {
+                const file = ev.target.files && ev.target.files[0];
+                if (!file) return;
+                const form = new FormData();
+                form.append('file', file);
+                try {
+                    const res = await fetch('/upload-events', { method: 'POST', body: form });
+                    if (!res.ok) throw new Error('upload failed');
+                    const updated = await res.json();
+                    if (window.reloadCalendar) window.reloadCalendar(updated);
+                    alert('Import complete');
+                } catch (err) {
+                    console.error('Import failed', err);
+                    alert('Could not import file');
+                } finally {
+                    importFile.value = '';
+                }
+            });
+        });
     </script>
     <script src="{{ url_for('static', filename='calendar.js') }}"></script>
 </body>
