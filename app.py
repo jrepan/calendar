@@ -1,22 +1,10 @@
-import os
-import hashlib
-import io
 import uuid
 import datetime
 from datetime import timedelta
 from icalendar import Calendar, Event
-from flask import Flask, render_template, request, jsonify, make_response, session, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, jsonify, make_response
 
-app = Flask(__name__, static_folder=None)
-
-# Secret key for session.
-app.secret_key = os.environ.get('SECRET_KEY') or os.urandom(24).hex()
-
-# Password handling: always use SHA1. Provide the SHA1 hex via
-# `AUTH_PASSWORD_SHA1`. If not set, default to SHA1('password').
-AUTH_PASSWORD_HASH = os.environ.get('AUTH_PASSWORD_SHA1')
-if not AUTH_PASSWORD_HASH:
-    AUTH_PASSWORD_HASH = hashlib.sha1('saladus'.encode('utf-8')).hexdigest()
+app = Flask(__name__, static_folder='static')
 
 # Events stored server-side. Date format: YYYY-MM-DD
 events = []
@@ -25,42 +13,6 @@ events = []
 @app.route("/")
 def main():
     return render_template("index.html", events=events)
-
-
-@app.before_request
-def require_login():
-    # Allow access to the login page and static asset serving route
-    allowed_endpoints = ('login', 'static')
-    if request.endpoint in allowed_endpoints:
-        return
-    if not session.get('logged_in'):
-        return redirect(url_for('login', next=request.path))
-
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    next_url = request.args.get('next') or url_for('main')
-    error = None
-    if request.method == 'POST':
-        password = request.form.get('password', '')
-        hashed = hashlib.sha1(password.encode('utf-8')).hexdigest()
-        if hashed == AUTH_PASSWORD_HASH:
-            session['logged_in'] = True
-            return redirect(next_url)
-        error = 'Invalid password'
-    return render_template('login.html', error=error)
-
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('login'))
-
-
-# Serve static files through a guarded route so everything is protected
-@app.route('/static/<path:filename>')
-def static(filename):
-    return send_from_directory('static', filename)
 
 
 @app.route('/add-event', methods=['POST'])

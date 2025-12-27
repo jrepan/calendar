@@ -78,7 +78,6 @@ code {
     justify-content: space-between;
     margin-bottom: 8px;
 }
-.logout-link { color: #ffffff; text-decoration: none; padding: 6px 8px; background: rgba(255,255,255,0.02); border-radius: 6px }
 .calendar-header button {
     background: #0f2a4a;
     border: 1px solid rgba(255,255,255,0.04);
@@ -232,29 +231,5 @@ code {
 }
 .save-btn { background: #1e40af; color: #fff; }
 .cancel-btn { background: rgba(255,255,255,0.03); color: #cfe6ff; }
-
-/* Login page styles (moved from templates/login.html) */
-.login-box {
-    max-width: 360px;
-    margin: 8vh auto;
-    padding: 24px;
-    background: #071026;
-    border-radius: 8px;
-    box-shadow: 0 6px 18px rgba(2, 6, 23, 0.6);
-    color: #e6eef8;
-}
-.login-box h1{ margin-top:0 }
-.login-box label{ display:block; margin:8px 0; color: #cfe6ff }
-.login-box input {
-    width: 100%;
-    padding: 8px;
-    box-sizing: border-box;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.04);
-    color: #e6eef8
-}
-.login-box input::placeholder { color: rgba(222,235,255,0.5); }
-.login-btn{ margin-top:12px; padding:8px 12px; background:#1e40af; color:#fff; border:0; border-radius:4px }
-.login-btn:hover { background:#1e3a9a }
 .error{ color:#ff9b9b }
 
