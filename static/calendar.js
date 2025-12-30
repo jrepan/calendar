@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentMonth = today.getMonth();
 
   // Use user's locale to generate localized month and weekday names.
-  const locale = (navigator && navigator.language) ? navigator.language : 'en-US';
+  const locale = navigator?.language ? navigator.language : 'en-US';
   const monthNames = Array.from({ length: 12 }, (_, m) =>
     new Intl.DateTimeFormat(locale, { month: 'long' }).format(new Date(2020, m, 1))
   );
