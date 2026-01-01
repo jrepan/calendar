@@ -34,7 +34,7 @@
 
             exportBtn.addEventListener('click', () => {
                 // simple navigation to download
-                window.location = '/download-events';
+                window.location = '/events';
             });
 
             importBtn.addEventListener('click', () => {
@@ -47,7 +47,7 @@
                 const form = new FormData();
                 form.append('file', file);
                 try {
-                    const res = await fetch('/upload-events', { method: 'POST', body: form });
+                    const res = await fetch('/events', { method: 'PUT', body: form });
                     let body = null;
                     try { body = await res.json(); } catch (e) { /* ignore JSON parse errors */ }
                     if (!res.ok) {

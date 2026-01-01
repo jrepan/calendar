@@ -113,8 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const newDate = inputDate.value;
             if (!newTitle || !newDate) { alert('Provide date and title'); return; }
             try {
-              const res = await fetch('/edit-event', {
-                method: 'POST',
+              const res = await fetch('/event', {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ old_date: dateKey, old_title: ev.title, date: newDate, title: newTitle })
               });
@@ -138,8 +138,8 @@ document.addEventListener('DOMContentLoaded', () => {
           e.stopPropagation();
           if (!confirm(`Delete event "${ev.title}" on ${dateKey}?`)) return;
           try {
-            const res = await fetch('/delete-event', {
-              method: 'POST',
+            const res = await fetch('/event', {
+              method: 'DELETE',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ date: dateKey, title: ev.title })
             });
@@ -276,8 +276,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const title = inputTitle.value.trim();
       if (!date || !title) { alert('Provide date and title'); return; }
       try {
-        const res = await fetch('/add-event', {
-          method: 'POST',
+        const res = await fetch('/event', {
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ date, title })
         });
