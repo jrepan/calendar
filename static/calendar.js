@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     form.className = "edit-form";
 
     const inputTitle = document.createElement("input");
-	inputTitle.name = "inputTitle";
+    inputTitle.name = "inputTitle";
     inputTitle.type = "text";
     inputTitle.value = title;
     inputTitle.className = "edit-title";
@@ -326,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const form = inputForm("", dateKey);
     dayEl.appendChild(form);
-	form.querySelector('input[name="inputTitle"]').focus();
+    form.querySelector('input[name="inputTitle"]').focus();
   });
 
   function reloadCalendar(newEvents) {
