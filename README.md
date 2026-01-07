@@ -1,3 +1,10 @@
+## Overview
+
+This started as an experiment into AI-generated code, but to make it more realistic, I chose a project that I would actually use myself day to day and indeed I do.
+
+
+## Deployment
+
 1. use gunicorn to run the server with only local access: `gunicorn app:app -b 127.0.0.1:8000 -D`
 
 2. To add HTTPS-only external access with password protection, create a nginx config in /etc/nginx/sites-enabled by replace ADDRESS with a relevant value in the following example:
