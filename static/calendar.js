@@ -64,8 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
         body = await res.json();
       } catch (e) {
         console.error("JSON parse: ", err);
-		alert("JSON parse failed");
-		return;
+        alert("JSON parse failed");
+        return;
       }
       if (!res.ok) {
         console.error("Import failed:", { status: res.status, body });
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const updated = body || [];
-      if (window.reloadCalendar) window.reloadCalendar(updated);
+      reloadCalendar(updated);
     } catch (err) {
       console.error("Import failed:", err);
       alert(
@@ -131,69 +131,10 @@ document.addEventListener("DOMContentLoaded", () => {
         editBtn.textContent = "✎";
         editBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-
-          const form = document.createElement("div");
-          form.className = "edit-form";
-
-          const inputTitle = document.createElement("input");
-          inputTitle.type = "text";
-          inputTitle.value = ev.title;
-          inputTitle.className = "edit-title";
-
-          const inputDate = document.createElement("input");
-          inputDate.type = "date";
-          inputDate.value = dateKey;
-          inputDate.className = "edit-date";
-
-          const saveBtn = document.createElement("button");
-          saveBtn.type = "button";
-          saveBtn.className = "save-btn";
-          saveBtn.textContent = "Save";
-
-          const cancelBtn = document.createElement("button");
-          cancelBtn.type = "button";
-          cancelBtn.className = "cancel-btn";
-          cancelBtn.textContent = "Cancel";
-
-          form.appendChild(inputDate);
-          form.appendChild(inputTitle);
-          form.appendChild(saveBtn);
-          form.appendChild(cancelBtn);
-
+          const form = inputForm(ev.title, dateKey);
           evEl.innerHTML = "";
           evEl.appendChild(form);
-
-          cancelBtn.addEventListener("click", () => {
-            renderCalendar(currentYear, currentMonth);
-          });
-
-          saveBtn.addEventListener("click", async () => {
-            const newTitle = inputTitle.value.trim();
-            const newDate = inputDate.value;
-            if (!newTitle || !newDate) {
-              alert("Provide date and title");
-              return;
-            }
-            try {
-              const res = await fetch("/event", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  old_date: dateKey,
-                  old_title: ev.title,
-                  date: newDate,
-                  title: newTitle,
-                }),
-              });
-              if (!res.ok) throw new Error("edit failed");
-              const updated = await res.json();
-              if (window.reloadCalendar) window.reloadCalendar(updated);
-            } catch (err) {
-              console.error("Edit event failed", err);
-              alert("Could not edit event");
-              renderCalendar(currentYear, currentMonth);
-            }
-          });
+          form.querySelector('input[name="inputTitle"]').focus();
         });
 
         const delBtn = document.createElement("button");
@@ -212,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             if (!res.ok) throw new Error("delete failed");
             const updated = await res.json();
-            if (window.reloadCalendar) window.reloadCalendar(updated);
+            reloadCalendar(updated);
           } catch (err) {
             console.error("Delete event failed", err);
             alert("Could not delete event");
@@ -299,6 +240,77 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function inputForm(title, dateKey) {
+    const form = document.createElement("div");
+    form.className = "edit-form";
+
+    const inputTitle = document.createElement("input");
+	inputTitle.name = "inputTitle";
+    inputTitle.type = "text";
+    inputTitle.value = title;
+    inputTitle.className = "edit-title";
+    inputTitle.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+    });
+
+    const inputDate = document.createElement("input");
+    inputDate.type = "date";
+    inputDate.value = dateKey;
+    inputDate.className = "edit-date";
+    inputDate.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+    });
+
+    const saveBtn = document.createElement("button");
+    saveBtn.type = "button";
+    saveBtn.className = "save-btn";
+    saveBtn.textContent = "Save";
+    saveBtn.addEventListener("click", async (ev) => {
+      ev.stopPropagation();
+      const newTitle = inputTitle.value.trim();
+      const newDate = inputDate.value;
+      if (!newTitle || !newDate) {
+        alert("Provide a date and a title");
+        return;
+      }
+      try {
+        const res = await fetch("/event", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            old_date: dateKey,
+            old_title: title,
+            date: newDate,
+            title: newTitle,
+          }),
+        });
+        if (!res.ok) throw new Error("save failed");
+        const updated = await res.json();
+        reloadCalendar(updated);
+      } catch (err) {
+        console.error("Add event failed", err);
+        alert("Could not add event");
+        renderCalendar(currentYear, currentMonth);
+      }
+    });
+
+    const cancelBtn = document.createElement("button");
+    cancelBtn.type = "button";
+    cancelBtn.className = "cancel-btn";
+    cancelBtn.textContent = "Cancel";
+    cancelBtn.addEventListener("click", () => {
+      form.remove();
+      renderCalendar(currentYear, currentMonth);
+    });
+
+    form.appendChild(inputDate);
+    form.appendChild(inputTitle);
+    form.appendChild(saveBtn);
+    form.appendChild(cancelBtn);
+
+    return form;
+  }
+
   // Add the form when a day is clicked
   calendarEl.addEventListener("click", (e) => {
     // Prevent opening form when clicking action buttons inside event
@@ -312,72 +324,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const existing = document.querySelectorAll(".add-form");
     existing.forEach((n) => n.remove());
 
-    const form = document.createElement("div");
-    form.className = "add-form";
-
-    const inputDate = document.createElement("input");
-    inputDate.type = "date";
-    inputDate.value = dateKey;
-    inputDate.className = "add-date";
-
-    const inputTitle = document.createElement("input");
-    inputTitle.type = "text";
-    inputTitle.placeholder = "Event title";
-    inputTitle.className = "add-title";
-
-    const addBtn = document.createElement("button");
-    addBtn.type = "button";
-    addBtn.className = "add-btn";
-    addBtn.textContent = "Add";
-
-    const cancelBtn = document.createElement("button");
-    cancelBtn.type = "button";
-    cancelBtn.className = "cancel-add-btn";
-    cancelBtn.textContent = "Cancel";
-
-    form.appendChild(inputDate);
-    form.appendChild(inputTitle);
-    form.appendChild(addBtn);
-    form.appendChild(cancelBtn);
-
+    const form = inputForm("", dateKey);
     dayEl.appendChild(form);
-    inputTitle.focus();
-
-    cancelBtn.addEventListener("click", (ev) => {
-      ev.stopPropagation();
-      form.remove();
-    });
-
-    addBtn.addEventListener("click", async (ev) => {
-      ev.stopPropagation();
-      const date = inputDate.value;
-      const title = inputTitle.value.trim();
-      if (!date || !title) {
-        alert("Provide a date and a title");
-        return;
-      }
-      try {
-        const res = await fetch("/event", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ date, title }),
-        });
-        if (!res.ok) throw new Error("add failed");
-        const updated = await res.json();
-        if (window.reloadCalendar) window.reloadCalendar(updated);
-      } catch (err) {
-        console.error("Add event failed", err);
-        alert("Could not add event");
-      }
-    });
+	form.querySelector('input[name="inputTitle"]').focus();
   });
 
-  window.reloadCalendar = function (newEvents) {
+  function reloadCalendar(newEvents) {
     if (Array.isArray(newEvents)) {
       window.SERVEREVENTS = newEvents;
     }
     renderCalendar(currentYear, currentMonth);
-  };
+  }
   prevBtn.addEventListener("click", () => {
     currentMonth -= 1;
     if (currentMonth < 0) {

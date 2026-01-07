@@ -48,7 +48,7 @@ def edit(data):
 @app.route('/event', methods=['PUT'])
 def event():
     data = request.get_json(silent=True)
-    if 'old_title' in data:
+    if 'old_title' in data and data['old_title']:
         return edit(data)
     else:
         return add(data)
