@@ -1,12 +1,50 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const exportBtn = document.getElementById('exportIcs');
+    const importBtn = document.getElementById('importBtn');
+    const importFile = document.getElementById('importFile');
   const calendarEl = document.getElementById('calendar');
   const monthYearEl = document.getElementById('monthYear');
   const prevBtn = document.getElementById('prevMonth');
   const nextBtn = document.getElementById('nextMonth');
-
   const today = new Date();
   let currentYear = today.getFullYear();
   let currentMonth = today.getMonth();
+
+    exportBtn.addEventListener('click', () => {
+        window.location = '/events';
+    });
+
+    importBtn.addEventListener('click', () => {
+        importFile.click();
+    });
+
+    importFile.addEventListener('change', async (ev) => {
+        const file = ev.target.files && ev.target.files[0];
+        if (!file) return;
+        const form = new FormData();
+        form.append('file', file);
+        try {
+            const res = await fetch('/events', { method: 'PUT', body: form });
+            let body = null;
+            try { body = await res.json(); } catch (e) { /* ignore JSON parse errors */ }
+            if (!res.ok) {
+                // Log detailed server-provided info to the browser console
+                console.error('Import failed:', { status: res.status, body });
+                const serverMsg = body && (body.details || body.error) ? (body.details ? `${body.error}: ${body.details}` : body.error) : `Upload failed with status ${res.status}`;
+                alert(`Import failed: ${serverMsg}`);
+                return;
+            }
+            const updated = body || [];
+            if (window.reloadCalendar) window.reloadCalendar(updated);
+            alert('Import complete');
+        } catch (err) {
+            console.error('Import failed (network or unexpected):', err);
+            alert('Could not import file: ' + (err && err.message ? err.message : String(err)));
+        } finally {
+            importFile.value = '';
+        }
+    });
+
 
   // Use user's locale to generate localized month and weekday names.
   const locale = navigator?.language ? navigator.language : 'en-US';

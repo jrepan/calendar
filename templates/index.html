@@ -1,75 +1,29 @@
-<head>
-    <title>Kalender</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
-
-<body>
-    <section class="calendar-section">
-        <div class="calendar-container">
-            <div class="calendar-header">
-                <div>
-                    <button id="prevMonth" aria-label="Previous month">&lt;</button>
-                    <button id="nextMonth" aria-label="Next month">&gt;</button>
+<html>
+    <head>
+        <title>Kalender</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}">
+    </head>
+    <body>
+        <section class="calendar-section">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <div>
+                        <button id="prevMonth" aria-label="Previous month">&lt;</button>
+                        <button id="nextMonth" aria-label="Next month">&gt;</button>
+                    </div>
+                    <h2 id="monthYear">Month Year</h2>
+                    <div class="header-actions">
+                        <button id="exportIcs" title="Export as .ics">Export</button>
+                        <form id="importForm" style="display:inline-block" enctype="multipart/form-data">
+                            <input id="importFile" name="file" type="file" accept=".ics" style="display:none">
+                            <button id="importBtn" type="button">Import</button>
+                        </form>
+                    </div>
                 </div>
-                <h2 id="monthYear">Month Year</h2>
-                <div class="header-actions">
-                    <button id="exportIcs" title="Export as .ics">Export</button>
-                    <form id="importForm" style="display:inline-block" enctype="multipart/form-data">
-                        <input id="importFile" name="file" type="file" accept=".ics" style="display:none">
-                        <button id="importBtn" type="button">Import</button>
-                    </form>
-                </div>
+                <div id="calendar" class="calendar-grid" aria-live="polite"></div>
             </div>
-            <div id="calendar" class="calendar-grid" aria-live="polite"></div>
-        </div>
-    </section>
-    <script>
-        // Server-provided events injected as JSON
-        window.SERVEREVENTS = {{ events|tojson | safe }} || [];
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const exportBtn = document.getElementById('exportIcs');
-            const importBtn = document.getElementById('importBtn');
-            const importFile = document.getElementById('importFile');
-
-            exportBtn.addEventListener('click', () => {
-                // simple navigation to download
-                window.location = '/events';
-            });
-
-            importBtn.addEventListener('click', () => {
-                importFile.click();
-            });
-
-            importFile.addEventListener('change', async (ev) => {
-                const file = ev.target.files && ev.target.files[0];
-                if (!file) return;
-                const form = new FormData();
-                form.append('file', file);
-                try {
-                    const res = await fetch('/events', { method: 'PUT', body: form });
-                    let body = null;
-                    try { body = await res.json(); } catch (e) { /* ignore JSON parse errors */ }
-                    if (!res.ok) {
-                        // Log detailed server-provided info to the browser console
-                        console.error('Import failed:', { status: res.status, body });
-                        const serverMsg = body && (body.details || body.error) ? (body.details ? `${body.error}: ${body.details}` : body.error) : `Upload failed with status ${res.status}`;
-                        alert(`Import failed: ${serverMsg}`);
-                        return;
-                    }
-                    const updated = body || [];
-                    if (window.reloadCalendar) window.reloadCalendar(updated);
-                    alert('Import complete');
-                } catch (err) {
-                    console.error('Import failed (network or unexpected):', err);
-                    alert('Could not import file: ' + (err && err.message ? err.message : String(err)));
-                } finally {
-                    importFile.value = '';
-                }
-            });
-        });
-    </script>
-    <script src="{{ url_for('static', filename='calendar.js') }}"></script>
-</body>
-
+        </section>
+		<script>window.SERVEREVENTS = {{ events|tojson | safe }} || [];</script>
+        <script src="{{ url_for('static', filename='calendar.js') }}"></script>
+    </body>
 </html>

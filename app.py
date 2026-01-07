@@ -121,19 +121,16 @@ def upload():
     # Validate all VEVENTs first: ensure dtstart and summary present and dates parseable
     vevents = [c for c in cal.walk() if c.name == 'VEVENT']
     for c in vevents:
-        # dtstart is required; summary is optional (use default title when absent)
         if not c.get('dtstart'):
             return jsonify({'error': 'missing dtstart in VEVENT', 'vevent': str(c)}), 400
         try:
             dtval = c.get('dtstart').dt
             if isinstance(dtval, datetime.datetime):
                 dtval = dtval.date()
-            _ = dtval.isoformat()
         except Exception as exc:
             return jsonify({'error': 'malformed date in uploaded ics', 'vevent': str(c), 'details': str(exc)}), 400
 
     # All validated — now import
-    added = 0
     for component in vevents:
         summary = component.get('summary')
         dtval = component.get('dtstart').dt
@@ -144,6 +141,5 @@ def upload():
         exists = any(e.get('date') == date_str and e.get('title') == title for e in events)
         if not exists:
             events.append({'date': date_str, 'title': title, 'uid': str(component.get('uid') or uuid.uuid4().hex)})
-            added += 1
 
     return jsonify(events)
