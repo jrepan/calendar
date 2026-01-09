@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   importFile.addEventListener("change", async (ev) => {
-    const file = ev.target.files && ev.target.files[0];
+    const file = ev.target.files?.[0];
     if (!file) return;
     const form = new FormData();
     form.append("file", file);
@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         body = await res.json();
       } catch (e) {
-        console.error("JSON parse: ", err);
+        console.error("JSON parse: ", e);
         alert("JSON parse failed");
         return;
       }
@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Import failed:", err);
       alert(
         "Could not import file: " +
-          (err && err.message ? err.message : String(err)),
+          (err?.message ? err.message : String(err)),
       );
     } finally {
       importFile.value = "";
