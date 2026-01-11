@@ -1,6 +1,6 @@
 ## Overview
 
-This started as an experiment into AI-generated code, but to make it more realistic, I chose a project that I would actually use myself day to day and indeed I do.
+This started as an experiment into AI-generated code, but to make it more realistic, I chose a project that I would actually use myself day to day and indeed I do. All features were added by AI, but I needed to adjust the code afterwards.
 
 
 ## Deployment
