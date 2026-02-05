@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
         editBtn.textContent = "✎";
         editBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          const form = inputForm(ev.title, dateKey);
+          const form = inputForm(ev.uid, ev.title, dateKey);
           evEl.innerHTML = "";
           evEl.appendChild(form);
           form.querySelector('input[name="inputTitle"]').focus();
@@ -149,9 +149,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("/event", {
               method: "DELETE",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ date: dateKey, title: ev.title }),
+              body: JSON.stringify({ uid: ev.uid }),
             });
-            if (!res.ok) throw new Error("delete failed");
+            if (!res.ok) {
+				console.log(res);
+				throw new Error("delete failed");
+			}
             const updated = await res.json();
             reloadCalendar(updated);
           } catch (err) {
@@ -240,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function inputForm(title, dateKey) {
+  function inputForm(uid, title, dateKey) {
     const form = document.createElement("div");
     form.className = "edit-form";
 
@@ -278,8 +281,7 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            old_date: dateKey,
-            old_title: title,
+			uid: uid,
             date: newDate,
             title: newTitle,
           }),
@@ -288,8 +290,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const updated = await res.json();
         reloadCalendar(updated);
       } catch (err) {
-        console.error("Add event failed", err);
-        alert("Could not add event");
+        console.error("add/update event failed", err);
+        alert("Could not add or update an event");
         renderCalendar(currentYear, currentMonth);
       }
     });
@@ -324,7 +326,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const existing = document.querySelectorAll(".add-form");
     existing.forEach((n) => n.remove());
 
-    const form = inputForm("", dateKey);
+    const form = inputForm(null, "", dateKey);
     dayEl.appendChild(form);
     form.querySelector('input[name="inputTitle"]').focus();
   });
