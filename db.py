@@ -26,20 +26,24 @@ def init_db():
 def fetch_events() -> dict:
     with get_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT event as uid, date::text as date, title FROM events ORDER BY date")
+            cur.execute("SELECT DISTINCT ON(event) event as uid, date::text as date, title FROM events ORDER BY event, timestamp DESC")
             rows = cur.fetchall()
             return [dict(r) for r in rows]
 
-def insert_event(uid, date, title):
+def insert_events(events):
     with get_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute("INSERT INTO events (event, date, title, timestamp) VALUES (%s, %s, %s, NOW())", (uid, date, title))
+            for ev in events:
+                cur.execute("INSERT INTO events (event, date, title, timestamp) VALUES (%s, %s, %s, NOW())", (ev['uid'], ev['date'], ev['title']))
             conn.commit()
 
 def update_event(uid, date, title) -> bool:
     with get_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute("UPDATE events SET date = %s, title = %s, timestamp = NOW() WHERE event = %s", (date, title, uid))
+            # since we have a live connection to the database, we know our update is the most recent one
+            cur.execute("DELETE FROM events WHERE event = %s", (uid,))
+
+            cur.execute("INSERT INTO events (event, date, title, timestamp) VALUES (%s, %s, %s, NOW())", (uid, date, title))
             affected = cur.rowcount
             conn.commit()
     return affected > 0

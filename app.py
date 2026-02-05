@@ -19,13 +19,8 @@ def event():
         return jsonify({'error': 'invalid payload'}), 400
     date = data['date']
     title = data['title']
-    if 'uid' in data and data['uid']:
-        success = db.update_event(data['uid'], date, title)
-        if not success:
-            return jsonify({'error': 'not found'}), 404
-    else:
-        uid = uuid.uuid4().hex
-        db.insert_event(uid, date, title)
+    uid = data['uid'] or uuid.uuid4().hex
+    db.update_event(uid, date, title)
     return jsonify(db.fetch_events())
 
 @app.route('/event', methods=['DELETE'])
@@ -89,6 +84,7 @@ def upload():
             return jsonify({'error': 'malformed date in uploaded ics', 'vevent': str(c), 'details': str(exc)}), 400
 
     # All validated, now import
+    events = []
     for component in vevents:
         uid = component.get('uid') or uuid.uuid4().hex
         summary = component.get('summary')
@@ -98,5 +94,6 @@ def upload():
             dtval = dtval.date()
         date_str = dtval.isoformat()
         if not db.event_exists(uid):
-            db.insert_event(uid, date_str, title)
+            events.append({'uid': uid, 'date': date_str, 'title': title})
+    db.insert_events(events)
     return jsonify(db.fetch_events())
