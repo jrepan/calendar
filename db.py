@@ -16,8 +16,11 @@ def init_db():
                     timestamp TIMESTAMP NOT NULL,
                     event TEXT NOT NULL,
                     date DATE NOT NULL,
+                    end_date DATE,
                     title TEXT
                 );
+                ALTER TABLE events ADD COLUMN IF NOT EXISTS end_date DATE;
+                UPDATE events SET end_date = date WHERE end_date IS NULL;
                 CREATE INDEX IF NOT EXISTS idx ON events USING BTREE (timestamp, event);
                 """
             )
@@ -26,7 +29,7 @@ def init_db():
 def fetch_events() -> dict:
     with get_conn() as conn:
         with conn.cursor() as cur:
-            cur.execute("SELECT DISTINCT ON(event) event as uid, date::text as date, title FROM events ORDER BY event, timestamp DESC")
+            cur.execute("SELECT DISTINCT ON(event) event as uid, date::text as date, COALESCE(end_date, date)::text as end_date, title FROM events ORDER BY event, timestamp DESC")
             rows = cur.fetchall()
             return [dict(r) for r in rows]
 
@@ -34,16 +37,20 @@ def insert_events(events):
     with get_conn() as conn:
         with conn.cursor() as cur:
             for ev in events:
-                cur.execute("INSERT INTO events (event, date, title, timestamp) VALUES (%s, %s, %s, NOW())", (ev['uid'], ev['date'], ev['title']))
+                end_date = ev.get('end_date', ev['date'])
+                cur.execute("INSERT INTO events (event, date, end_date, title, timestamp) VALUES (%s, %s, %s, %s, NOW())", (ev['uid'], ev['date'], end_date, ev['title']))
             conn.commit()
 
-def update_event(uid, date, title) -> bool:
+def update_event(uid, date, end_date, title) -> bool:
     with get_conn() as conn:
         with conn.cursor() as cur:
             # since we have a live connection to the database, we know our update is the most recent one
             cur.execute("DELETE FROM events WHERE event = %s", (uid,))
 
-            cur.execute("INSERT INTO events (event, date, title, timestamp) VALUES (%s, %s, %s, NOW())", (uid, date, title))
+            if end_date is None:
+                end_date = date
+
+            cur.execute("INSERT INTO events (event, date, end_date, title, timestamp) VALUES (%s, %s, %s, %s, NOW())", (uid, date, end_date, title))
             affected = cur.rowcount
             conn.commit()
     return affected > 0

@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
       window.SERVEREVENTS && Array.isArray(window.SERVEREVENTS)
         ? window.SERVEREVENTS
         : [];
-    return all.filter((e) => e.date === dateKey);
+    return all.filter((e) => e.date <= dateKey && (e.end_date || e.date) >= dateKey);
   }
 
   exportBtn.addEventListener("click", () => {
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
         editBtn.textContent = "✎";
         editBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          const form = inputForm(ev.uid, ev.title, dateKey);
+          const form = inputForm(ev.uid, ev.title, ev.date, ev.end_date || ev.date);
           evEl.innerHTML = "";
           evEl.appendChild(form);
           form.querySelector('input[name="inputTitle"]').focus();
@@ -243,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function inputForm(uid, title, dateKey) {
+  function inputForm(uid, title, dateKey, endDateKey) {
     const form = document.createElement("div");
     form.className = "edit-form";
 
@@ -256,6 +256,9 @@ document.addEventListener("DOMContentLoaded", () => {
       ev.stopPropagation();
     });
 
+    const dateWrap = document.createElement("div");
+    dateWrap.className = "edit-date-wrap";
+    
     const inputDate = document.createElement("input");
     inputDate.type = "date";
     inputDate.value = dateKey;
@@ -263,6 +266,21 @@ document.addEventListener("DOMContentLoaded", () => {
     inputDate.addEventListener("click", (ev) => {
       ev.stopPropagation();
     });
+
+    const inputEndDate = document.createElement("input");
+    inputEndDate.type = "date";
+    inputEndDate.value = endDateKey || dateKey;
+    inputEndDate.className = "edit-date end-date";
+    inputEndDate.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+    });
+
+    const toSpan = document.createElement("span");
+    toSpan.textContent = " to ";
+
+    dateWrap.appendChild(inputDate);
+    dateWrap.appendChild(toSpan);
+    dateWrap.appendChild(inputEndDate);
 
     const saveBtn = document.createElement("button");
     saveBtn.type = "button";
@@ -272,8 +290,13 @@ document.addEventListener("DOMContentLoaded", () => {
       ev.stopPropagation();
       const newTitle = inputTitle.value.trim();
       const newDate = inputDate.value;
-      if (!newTitle || !newDate) {
+      const newEndDate = inputEndDate.value;
+      if (!newTitle || !newDate || !newEndDate) {
         alert("Provide a date and a title");
+        return;
+      }
+      if (newEndDate < newDate) {
+        alert("End date must be after or equal to start date");
         return;
       }
       try {
@@ -281,8 +304,9 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-			uid: uid,
+            uid: uid,
             date: newDate,
+            end_date: newEndDate,
             title: newTitle,
           }),
         });
@@ -305,10 +329,14 @@ document.addEventListener("DOMContentLoaded", () => {
       renderCalendar(currentYear, currentMonth);
     });
 
-    form.appendChild(inputDate);
+    form.appendChild(dateWrap);
     form.appendChild(inputTitle);
-    form.appendChild(saveBtn);
-    form.appendChild(cancelBtn);
+    
+    const actionsWrap = document.createElement("div");
+    actionsWrap.className = "edit-form-actions";
+    actionsWrap.appendChild(saveBtn);
+    actionsWrap.appendChild(cancelBtn);
+    form.appendChild(actionsWrap);
 
     return form;
   }
@@ -316,17 +344,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Add the form when a day is clicked
   calendarEl.addEventListener("click", (e) => {
     // Prevent opening form when clicking action buttons inside event
-    if (e.target.closest(".event") || e.target.closest("button")) return;
+    if (e.target.closest(".event") || e.target.closest("button") || e.target.closest(".edit-form")) return;
 
     const dayEl = e.target.closest(".calendar-day");
     if (!dayEl || dayEl.classList.contains("inactive")) return;
     const dateKey = dayEl.getAttribute("data-date");
 
     // Close open forms
-    const existing = document.querySelectorAll(".add-form");
+    const existing = document.querySelectorAll(".edit-form");
     existing.forEach((n) => n.remove());
 
-    const form = inputForm(null, "", dateKey);
+    const form = inputForm(null, "", dateKey, dateKey);
     dayEl.appendChild(form);
     form.querySelector('input[name="inputTitle"]').focus();
   });

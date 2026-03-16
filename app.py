@@ -18,9 +18,10 @@ def event():
     if not data or 'date' not in data or 'title' not in data:
         return jsonify({'error': 'invalid payload'}), 400
     date = data['date']
+    end_date = data.get('end_date', date)
     title = data['title']
     uid = data['uid'] or uuid.uuid4().hex
-    db.update_event(uid, date, title)
+    db.update_event(uid, date, end_date, title)
     return jsonify(db.fetch_events())
 
 @app.route('/event', methods=['DELETE'])
@@ -41,15 +42,17 @@ def download():
 
     for ev in db.fetch_events():
         date_str = ev.get('date')
+        end_date_str = ev.get('end_date', date_str)
         try:
             dt = datetime.date.fromisoformat(date_str)
+            dt_end = datetime.date.fromisoformat(end_date_str)
         except Exception:
             return jsonify({'error': 'malformed date in stored events', 'event': ev}), 400
         ical_ev = Event()
         ical_ev.add('summary', ev.get('title', ''))
         ical_ev.add('dtstart', dt)
-        # DTEND for all-day events is non-inclusive: set to next day
-        ical_ev.add('dtend', dt + timedelta(days=1))
+        # DTEND for all-day events is non-inclusive: set to next day after end_date
+        ical_ev.add('dtend', dt_end + timedelta(days=1))
         ical_ev.add('uid', ev.get('uid'))
         cal.add_component(ical_ev)
 
@@ -80,6 +83,10 @@ def upload():
             dtval = c.get('dtstart').dt
             if isinstance(dtval, datetime.datetime):
                 dtval = dtval.date()
+            if c.get('dtend'):
+                dtendval = c.get('dtend').dt
+                if isinstance(dtendval, datetime.datetime):
+                    dtendval = dtendval.date()
         except Exception as exc:
             return jsonify({'error': 'malformed date in uploaded ics', 'vevent': str(c), 'details': str(exc)}), 400
 
@@ -93,7 +100,20 @@ def upload():
         if isinstance(dtval, datetime.datetime):
             dtval = dtval.date()
         date_str = dtval.isoformat()
+        
+        end_date_str = date_str
+        if component.get('dtend'):
+            dtendval = component.get('dtend').dt
+            if isinstance(dtendval, datetime.datetime):
+                dtendval = dtendval.date()
+            # ICS dtend is exclusive, so subtract 1 day to get inclusive end_date
+            end_date = dtendval - timedelta(days=1)
+            # if end_date became before start_date, clamp it
+            if end_date < dtval:
+                end_date = dtval
+            end_date_str = end_date.isoformat()
+
         if not db.event_exists(uid):
-            events.append({'uid': uid, 'date': date_str, 'title': title})
+            events.append({'uid': uid, 'date': date_str, 'end_date': end_date_str, 'title': title})
     db.insert_events(events)
     return jsonify(db.fetch_events())

@@ -180,6 +180,15 @@ body {
     background: rgba(255,255,255,0.02);
     color: #e6eef8;
 }
+.edit-date-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.edit-form-actions {
+    display: inline-flex;
+    gap: 4px;
+}
 .save-btn, .cancel-btn {
     padding: 4px 8px;
     border-radius: 4px;
