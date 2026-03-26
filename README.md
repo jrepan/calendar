@@ -1,6 +1,6 @@
 ## Overview
 
-A web-based calendar application that stored the events in memory. Supports iCal export and import.
+A web-based calendar application. Supports iCal export and import.
 
 This started as an experiment into AI-generated code, but to make it more realistic, I chose a project that I would actually use myself day to day and indeed I do. All features were added by AI, but I needed to adjust the code afterwards.
 
